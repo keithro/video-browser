@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import YTSearch from 'youtube-api-search';
@@ -17,18 +18,27 @@ class App extends Component {
       selectedVideo: null
     };
 
+    // SRun videoSearch method when the app loads
+    this.videoSearch('surfboards');
+  }
+
+  videoSearch(term) {
     // YouTube API Request (causes component to rerender)
-    YTSearch({ key: API_KEY, term: 'surfboards' }, (videos) => {
+    YTSearch({ key: API_KEY, term: term }, (videos) => {
       this.setState({
-        videos:videos,
+        videos: videos,
         selectedVideo: videos[0]
       });
     });
   }
+
   render() {
+    // Passing in videoSearch method to debouncer before passing into the searchbar
+    const videoSearch = _.debounce((term) => { this.videoSearch(term) }, 300);
+
     return (
       <div>
-        <SearchBar />
+        <SearchBar onSearchTermChange={videoSearch} />
         <VideoDetail video={this.state.selectedVideo} />
         <VideoList
           onVideoSelect={selectedVideo => this.setState({selectedVideo})}
